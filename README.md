@@ -25,25 +25,26 @@ gqlgen(GraphQL) list example
         ```
    - Get conditional user list
         ```graphql
-        users(param: {
-            filter: {
-                id: {
-                    value: 5
-                    condition: GTE
+        query UserListWithCondition{
+            users(param: {
+                filter: {
+                    id: {
+                        value: 5
+                        condition: GTE
+                    }
+                    birthday: {
+                        value: "2000-01-01 00:00:01"
+                        condition: LTE
+                    }
                 }
-                birthday: {
-                    value: "2000-01-01 00:00:01"
-                    condition: LTE
+                sort: {
+                    birthday: DESC
+                    id: ASC
                 }
-            }
-            sort: {
-                birthday: DESC
-                id: ASC
-            }
-            limit: 5
-            offset: 0
-        }) {
-            users {
+                limit: 5
+                offset: 0
+            }) {
+                users {
                     id
                     name
                     email
