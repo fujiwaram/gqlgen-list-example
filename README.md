@@ -15,10 +15,10 @@ gqlgen(GraphQL) list example
         query UserList{
             users {
                 users {
-                id
-                name
-                email
-                birthday
+                    id
+                    name
+                    email
+                    birthday
                 }
             }
         }
