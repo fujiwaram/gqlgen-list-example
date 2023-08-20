@@ -1,0 +1,114 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Query {
+  users(param: UserListParams): UserList!
+}
+
+type UserList {
+  users: [User!]!
+  totalCount: Int! @goField(forceResolver: true)
+}
+
+type User {
+  id: ID! @goTag(key: "db", value: "id")
+  name: String! @goTag(key: "db", value: "name")
+  email: String! @goTag(key: "db", value: "email")
+  birthday: Time! @goTag(key: "db", value: "birthday")
+  families: [Family!]! @goField(forceResolver: true)
+}
+
+type Family {
+  id: ID! @goTag(key: "db", value: "id")
+  name: String! @goTag(key: "db", value: "name")
+  birthday: Time! @goTag(key: "db", value: "birthday")
+}
+
+# 
+# input
+# 
+
+input UserListParams {
+  filter: UserFilter
+  sort: UserSort
+  limit: Int
+  offset: Int
+}
+
+input UserFilter {
+  id: IntFilter
+  name: StringFilter
+  email: StringFilter
+  birthday: TimeFilter
+}
+
+input IntFilter {
+  value: Int!
+  condition: IntFilterCondition!
+}
+
+enum IntFilterCondition {
+  EQ
+  GTE
+  LTE
+}
+
+input StringFilter {
+  value: String!
+  condition: StringFilterCondition!
+}
+
+enum StringFilterCondition {
+  EQ
+  CONTAINS
+}
+
+input TimeFilter {
+  value: Time!
+  condition: TimeFilterCondition!
+}
+
+enum TimeFilterCondition {
+  EQ
+  GTE
+  LTE
+}
+
+input UserSort {
+  id: SortDirection
+  name: SortDirection
+  email: SortDirection
+  birthday: SortDirection
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+# 
+# scalar
+# 
+
+scalar Time
+
+# 
+# directive
+# 
+
+directive @goModel(
+	model: String
+	models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+	forceResolver: Boolean
+	name: String
+  omittable: Boolean
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+directive @goTag(
+	key: String!
+	value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION

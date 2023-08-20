@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  app:
+    image: gqlgen-test-example
+    container_name: gqlgen-test-example
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+  db:
+    image: postgres:14
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=passw0rd
+    command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
+    logging:
+      options:
+        max-size: "10k"
+        max-file: "5"
