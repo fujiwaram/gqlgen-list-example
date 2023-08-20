@@ -27,14 +27,14 @@ gqlgen(GraphQL) list example
         ```graphql
         users(param: {
             filter: {
-            id: {
-                value: 5
-                condition: GTE
-            }
-            birthday: {
-                value: "2000-01-01 00:00:01"
-                condition: LTE
-            }
+                id: {
+                    value: 5
+                    condition: GTE
+                }
+                birthday: {
+                    value: "2000-01-01 00:00:01"
+                    condition: LTE
+                }
             }
             sort: {
                 birthday: DESC
