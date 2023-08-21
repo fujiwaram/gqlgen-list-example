@@ -8,12 +8,6 @@ import (
 	"strconv"
 )
 
-type Family struct {
-	ID       int64  `json:"id" db:"id"`
-	Name     string `json:"name" db:"name"`
-	Birthday Time   `json:"birthday" db:"birthday"`
-}
-
 type IntFilter struct {
 	Value     int64              `json:"value"`
 	Condition IntFilterCondition `json:"condition"`
@@ -30,11 +24,12 @@ type TimeFilter struct {
 }
 
 type User struct {
-	ID       int64    `json:"id" db:"id"`
-	Name     string   `json:"name" db:"name"`
-	Email    string   `json:"email" db:"email"`
-	Birthday Time     `json:"birthday" db:"birthday"`
-	Families []Family `json:"families"`
+	ID          int64  `json:"id" db:"id"`
+	Name        string `json:"name" db:"name"`
+	Email       string `json:"email" db:"email"`
+	Birthday    Time   `json:"birthday" db:"birthday"`
+	Friends     []User `json:"friends"`
+	FriendsEach []User `json:"friendsEach"`
 }
 
 type UserFilter struct {

@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type Query {
-  users(param: UserListParams): UserList!
+  userList(param: UserListParams): UserList!
 }
 
 type UserList {
@@ -16,13 +16,8 @@ type User {
   name: String! @goTag(key: "db", value: "name")
   email: String! @goTag(key: "db", value: "email")
   birthday: Time! @goTag(key: "db", value: "birthday")
-  families: [Family!]! @goField(forceResolver: true)
-}
-
-type Family {
-  id: ID! @goTag(key: "db", value: "id")
-  name: String! @goTag(key: "db", value: "name")
-  birthday: Time! @goTag(key: "db", value: "birthday")
+  friends: [User!]! @goField(forceResolver: true)
+  friendsEach: [User!]! @goField(forceResolver: true) # N+1確認用
 }
 
 # 

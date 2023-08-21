@@ -7,14 +7,14 @@ CREATE TABLE users (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE families (
+CREATE TABLE friends (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    birthday DATE NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users (id),
+    friend_id INTEGER NOT NULL REFERENCES users (id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE UNIQUE INDEX friends_unique_idx ON friends (user_id, friend_id);
 
 INSERT INTO users (id, name, email, birthday) VALUES
     (1, 'A-san', 'j@hoge.jp', '1997-01-01'),
@@ -30,16 +30,12 @@ INSERT INTO users (id, name, email, birthday) VALUES
 
 SELECT pg_catalog.setval('users_id_seq', 10);
 
-INSERT INTO families (id, user_id, name, birthday) VALUES
-    (1, 1, 'Aa-san', '2000-01-01'),
-    (2, 1, 'Ab-san', '2000-01-02'),
-    (3, 3, 'Ca-san', '2000-01-03'),
-    (4, 3, 'Cb-san', '2000-01-04'),
-    (5, 3, 'Cc-san', '2000-01-05'),
-    (6, 6, 'Fa-san', '2000-01-06'),
-    (7, 7, 'Ga-san', '2000-01-07'),
-    (8, 8, 'Ha-san', '2000-01-08'),
-    (9, 9, 'Ia-san', '2000-01-09'),
-    (10, 9, 'Ib-san', '2000-01-10');
-
-SELECT pg_catalog.setval('families_id_seq', 10);
+INSERT INTO friends (user_id, friend_id) VALUES
+    (1,2),(1,3),(1,4),(1,5),(1,10),
+    (2,1),
+    (3,1),
+    (4,1),
+    (5,1),
+    (6,7),(6,8),
+    (7,6),
+    (8,6);

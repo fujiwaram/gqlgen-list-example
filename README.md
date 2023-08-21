@@ -13,7 +13,8 @@ gqlgen(GraphQL) list example
    - Get all user list
         ```graphql
         query UserList{
-            users {
+            userList {
+                totalCount
                 users {
                     id
                     name
@@ -26,7 +27,7 @@ gqlgen(GraphQL) list example
    - Get conditional user list
         ```graphql
         query UserListWithCondition{
-            users(param: {
+            userList(param: {
                 filter: {
                     id: {
                         value: 5
@@ -38,17 +39,57 @@ gqlgen(GraphQL) list example
                     }
                 }
                 sort: {
-                    birthday: DESC
-                    id: ASC
+                    birthday: ASC
                 }
                 limit: 5
                 offset: 0
             }) {
+                totalCount
                 users {
                     id
                     name
                     email
                     birthday
+                }
+            }
+        }
+        ```
+   - Get all user and friends
+        ```graphql
+        query UserListAndFriends{
+            userList {
+                totalCount
+                users {
+                    id
+                    name
+                    email
+                    birthday
+                    friendsEach {
+                        id
+                        name
+                        email
+                        birthday  
+                    }
+                }
+            }
+        }
+        ```
+   - Get all user and friends more
+        ```graphql
+        query UserListAndFriendsMore{
+            userList {
+                totalCount
+                users {
+                    id
+                    name
+                    email
+                    birthday
+                    friendsEach {
+                        id, name
+                        friendsEach {
+                            id, name
+                        }
+                    }
                 }
             }
         }

@@ -9,40 +9,60 @@ import (
 	"fmt"
 
 	"github.com/fujiwaram/gqlgen-list-test/graph/model"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, param *model.UserListParams) (*model.UserList, error) {
+// UserList is the resolver for the userList field.
+func (r *queryResolver) UserList(ctx context.Context, param *model.UserListParams) (*model.UserList, error) {
 	condQuery, condArgs, err := param.ToQuery()
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert query: %w", err)
 	}
-	rows, err := r.db.QueryxContext(ctx, r.db.Rebind("SELECT id, name, email, birthday FROM users"+condQuery), condArgs...)
-	if err != nil {
+	var users []model.User
+	if err := r.db.SelectContext(ctx, &users, r.db.Rebind("SELECT id, name, email, birthday FROM users"+condQuery), condArgs...); err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
-	}
-	defer rows.Close()
-
-	users := make([]model.User, 0)
-	for rows.Next() {
-		var user model.User
-		if err := rows.StructScan(&user); err != nil {
-			return nil, fmt.Errorf("failed to query scan: %w", err)
-		}
-		users = append(users, user)
 	}
 	return &model.UserList{Users: users}, nil
 }
 
-// Families is the resolver for the families field.
-func (r *userResolver) Families(ctx context.Context, obj *model.User) ([]model.Family, error) {
-	panic(fmt.Errorf("not implemented: Families - families"))
+// Friends is the resolver for the friends field.
+func (r *userResolver) Friends(ctx context.Context, obj *model.User) ([]model.User, error) {
+	panic(fmt.Errorf("not implemented: Friends - friends"))
+}
+
+// FriendsEach is the resolver for the friendsEach field.
+func (r *userResolver) FriendsEach(ctx context.Context, obj *model.User) ([]model.User, error) {
+	var friendIDs []int64
+	if err := r.db.SelectContext(ctx, &friendIDs, "SELECT friend_id FROM friends WHERE user_id = $1", obj.ID); err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	if len(friendIDs) == 0 {
+		return nil, nil
+	}
+	q := "SELECT id, name, email, birthday FROM users WHERE id IN (?)"
+	query, args, err := sqlx.In(q, friendIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert query: %w", err)
+	}
+	users := make([]model.User, 0, len(friendIDs))
+	if err := r.db.SelectContext(ctx, &users, r.db.Rebind(query), args...); err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	return users, nil
 }
 
 // TotalCount is the resolver for the totalCount field.
 func (r *userListResolver) TotalCount(ctx context.Context, obj *model.UserList) (int64, error) {
-	panic(fmt.Errorf("not implemented: TotalCount - totalCount"))
+	var cnt []int
+	err := r.db.SelectContext(ctx, &cnt, "SELECT COUNT(1) FROM users")
+	if err != nil {
+		return 0, fmt.Errorf("failed to query: %w", err)
+	}
+	if len(cnt) == 0 {
+		return 0, nil
+	}
+	return int64(cnt[0]), nil
 }
 
 // Query returns QueryResolver implementation.
