@@ -28,14 +28,27 @@ func (r *queryResolver) UserList(ctx context.Context, param *model.UserListParam
 
 // Friends is the resolver for the friends field.
 func (r *userResolver) Friends(ctx context.Context, obj *model.User) ([]model.User, error) {
-	panic(fmt.Errorf("not implemented: Friends - friends"))
+	friendIDs, err := r.findFriendIDs(ctx, obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf(": %w", err)
+	}
+	if len(friendIDs) == 0 {
+		return nil, nil
+	}
+	users, errs := GetUsers(ctx, friendIDs)
+	for _, err := range errs {
+		if err != nil {
+			return nil, fmt.Errorf(": %w", err)
+		}
+	}
+	return users, nil
 }
 
 // FriendsEach is the resolver for the friendsEach field.
 func (r *userResolver) FriendsEach(ctx context.Context, obj *model.User) ([]model.User, error) {
-	var friendIDs []int64
-	if err := r.db.SelectContext(ctx, &friendIDs, "SELECT friend_id FROM friends WHERE user_id = $1", obj.ID); err != nil {
-		return nil, fmt.Errorf("failed to query: %w", err)
+	friendIDs, err := r.findFriendIDs(ctx, obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf(": %w", err)
 	}
 	if len(friendIDs) == 0 {
 		return nil, nil
@@ -50,6 +63,14 @@ func (r *userResolver) FriendsEach(ctx context.Context, obj *model.User) ([]mode
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	return users, nil
+}
+
+func (r *userResolver) findFriendIDs(ctx context.Context, userID int64) ([]int64, error) {
+	var friendIDs []int64
+	if err := r.db.SelectContext(ctx, &friendIDs, "SELECT friend_id FROM friends WHERE user_id = $1", userID); err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	return friendIDs, nil
 }
 
 // TotalCount is the resolver for the totalCount field.
